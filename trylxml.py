@@ -49,8 +49,8 @@ myArray = []
 tryStats=[]
 possStats= []
 count = 0
-for element in Troot.iter("instance"):
-    if element.text =='Try':
+for element in Troot.iter("ID"):
+    if element.text =='1':
         print (etree.tostring(element, pretty_print=True))
                 
 
@@ -82,6 +82,7 @@ for child in Troot:
                     print (etree.tostring(item, pretty_print=True))
                     try:
                         tryID = int(item[0].text)+1
+                        tryStats.append(tryID)
                     except: continue    
                     
                   
@@ -141,11 +142,30 @@ for child in Troot:
                 except:
                     continue
 
-for i in tryStats:
-    for event, element in Troot.iter("instance"):
-        if element.text == str(i):
-            print (etree.tostring(event, pretty_print=True))
-
+for item in tryStats:
+    i=0
+    print(i)
+    print (str(tryStats[i]))
+    for child in Troot:
+        for item in child:
+            for instance in item:
+                
+                try:
+                    if instance.text == str(tryStats[i]):
+                        #indent(item)
+                        #ElementTree.dump(item)
+                        #tryTime =""
+                        #start = 0
+                        #end = 0
+                        tryTime = float(item[2].text) -float(item[1].text)
+                        print (tryTime)
+                        #fullLoc= etree.Element(item)
+                        #print (fullLoc)
+                        print (etree.tostring(item, pretty_print=True))
+                        i+=1
+                except: continue
+                     
+    
 
     
 def PhaseChecker():
