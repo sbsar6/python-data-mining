@@ -49,6 +49,9 @@ myArray = []
 tryStats=[]
 possStats= []
 count = 0
+gameClock = 0
+cStart = 0
+cEnd = 0
 for element in Troot.iter("ID"):
     if element.text =='1':
         print (etree.tostring(element, pretty_print=True))
@@ -56,7 +59,8 @@ for element in Troot.iter("ID"):
 
 
 for child in Troot:
-    print (child.attrib)
+    if child == Troot[1][1].tag:
+        break
     #print (child.tag)
     #print (child.keys())
     
@@ -70,6 +74,37 @@ for child in Troot:
             myArray.append('ID:' + str(count))
             for instance in item:
                 
+                
+                nPhase = item[3].text
+                highPhase = 0    
+                #if re.match(r'.:P10+', nPhase):
+                 #   print (etree.tostring(item, pretty_print=True))
+                                   
+                #phaseNum = list(map(int, phaseNum))
+                starT = float(item[1].text)
+                endT = float(item[2].text)
+                if endT > cEnd:
+                    cEnd= endT
+                    cStart =starT  
+                    gameClock = gameClock + (cEnd - cStart)
+                    print ('Game Clock =',gameClock)
+                
+                                
+                    
+                '''
+                if currTime > 20:
+                    if currTime <21:
+                        print('20 Mins Gone')
+                if currTime > 40:
+                    if currTime <41:
+                        print('40 Mins Gone')
+                if currTime > 60:
+                    if currTime <61:
+                        print('60 Mins Gone')
+                if currTime > 80:
+                    if currTime <81:
+                        print('80 Mins Gone')
+            '''
                 if instance.text == "Try":
                     indent(item)
                     ElementTree.dump(item)
@@ -144,8 +179,7 @@ for child in Troot:
 
 for item in tryStats:
     i=0
-    print(i)
-    print (str(tryStats[i]))
+    
     for child in Troot:
         for item in child:
             for instance in item:
@@ -157,6 +191,10 @@ for item in tryStats:
                         #tryTime =""
                         #start = 0
                         #end = 0
+                        print(i)
+                        print (str(tryStats[i]))
+                        print(item[2].text)
+                        print (item[1].text)
                         tryTime = float(item[2].text) -float(item[1].text)
                         print (tryTime)
                         #fullLoc= etree.Element(item)
@@ -175,4 +213,4 @@ def PhaseChecker():
                     
 
 print ('TrtStats: ' ,tryStats)
-
+print ('Poss Stats' , possStats)
