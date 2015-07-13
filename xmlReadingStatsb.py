@@ -153,6 +153,7 @@ def posession():
     print (posessTimes)
     totPossTimes = len(posessTimes)
     print('Total Posession Times= ', totPossTimes)
+    print('Possession Time', sum(posessTimes))
     print(np.histogram(posessTimes, bins = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]))
     
     plt.hist(posessTimes, bins=[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
@@ -184,7 +185,8 @@ def Oppposession():
     print (posessStats)
     print (posessTimes)
     totPossTimes = len(posessTimes)
-    print('Total Posession Times= ', totPossTimes)
+    print('Total Opposition Posession Times= ', totPossTimes)
+    print('Opp Possession Time', sum(posessTimes))
     print(np.histogram(posessTimes, bins = [0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150]))
     
     plt.hist(posessTimes, bins=[0,10,20,30,40,50,60,70,80,90,100,110,120,130,140,150])
@@ -192,7 +194,8 @@ def Oppposession():
     plt.xlabel('Phase Duration Times')
     plt.ylabel('Frequency')
     plt.show()
-#Oppposession()
+posession()
+Oppposession()
 
 
 xAxis = [1,2,3,4,5,6,7,8,9,10]

@@ -29,7 +29,7 @@ def indent(elem, level=0):
             elem.tail = i
 
 #tree = ttk.Treeview(root) 
-tree = etree.parse('irelandGame.xml')
+tree = etree.parse('150215 Leinster - Dragons XML Edit list.xml')
 Troot = tree.getroot()
 print(Troot[1][1].tag)
 #print(etree.tostring("ID", pretty_print=True))
@@ -50,6 +50,7 @@ tryStats=[]
 possStats= []
 count = 0
 gameClock = 0
+altClock= 0
 cStart = 0
 cEnd = 0
 for element in Troot.iter("ID"):
@@ -58,9 +59,8 @@ for element in Troot.iter("ID"):
                 
 
 
-for child in Troot:
-    if child == Troot[1][1].tag:
-        break
+for child in Troot[:1]:
+
     #print (child.tag)
     #print (child.keys())
     
@@ -81,14 +81,33 @@ for child in Troot:
                  #   print (etree.tostring(item, pretty_print=True))
                                    
                 #phaseNum = list(map(int, phaseNum))
-                starT = float(item[1].text)
-                endT = float(item[2].text)
-                if endT > cEnd:
-                    cEnd= endT
-                    cStart =starT  
-                    gameClock = gameClock + (cEnd - cStart)
-                    print ('Game Clock =',gameClock)
+                starT = (float(item[1].text))/60
                 
+                
+                endT = float(item[2].text)/60
+                
+                if endT > cEnd:
+                    cTemp=0
+                    print('ID:',item[0].text)
+                    if starT>cEnd:
+                        print('Start higher')
+                        print(float(item[1].text))
+                        print('StartT',starT)
+                        print ('EndT', endT)
+                              
+                        cTemp = endT - starT
+                        print('higher ctemp:',cTemp)
+
+                    else:
+                        cTemp= endT - cEnd
+                        print('start not higher cTemp', cTemp)
+                    cEnd= endT
+                    
+                    cStart =starT
+                    
+                    gameClock = gameClock + cTemp
+                    print ('Game Clock =',gameClock)
+
                                 
                     
                 '''
@@ -136,11 +155,11 @@ for child in Troot:
                    
                        
                     phase = item[3].text
-                    print (phase)
+                    print ('phase: ',phase)
                     highPhase = 0    
                     
                     phaseNum = re.findall(r'\d+', phase)
-                    print (phaseNum)
+                    print ('phaseNum:' ,phaseNum)
                     phaseNum = list(map(int, phaseNum))
                     print (phaseNum)
                     #if phaseNum >highPhase:
@@ -214,3 +233,6 @@ def PhaseChecker():
 
 print ('TrtStats: ' ,tryStats)
 print ('Poss Stats' , possStats)
+print ('Game Clock =',gameClock)
+print ('Alt Clock =',altClock)
+
