@@ -4,6 +4,7 @@ import numpy as np
 from sklearn import svm, preprocessing
 import matplotlib.pyplot as plt
 from matplotlib import style
+import statistics
 style.use("ggplot")
 
 FEATURES =  ['DE Ratio',
@@ -54,14 +55,16 @@ def Build_Data_Set():
          .replace("outperform", 1)
          .values.tolist())
     X = preprocessing.scale(X)
-    return X,y
+
+    Z = np.array(data_df[["stock_p_change","sp500_p_change"]])
+    return X,y,Z
 
 
 def Analysis():
 
     test_size =1000
 
-    X, y = Build_Data_Set()
+    X, y,Z = Build_Data_Set()
     print(len(X))
     
     clf = svm.SVC(kernel= "linear", C=1.0)
