@@ -33,11 +33,13 @@ def indent(elem, level=0):
 df = pd.DataFrame(columns = ['Clock',
                              'PhaseID',
                              'PhaseTime',
+                             'PhaseName',
                              #'PhaseResult',
-                             #'RucksNo',
+                             'RucksNo',
                              'PosGainline',
                              'NegGainline',
                              'Linebreak',
+                             'LineBreakPrevPhase',
                              'rdNear',
                              'rdRuck',
                              'rdFar',
@@ -45,6 +47,32 @@ df = pd.DataFrame(columns = ['Clock',
                              'rsSlow',
                              'rsMedium',
                              'rsFast',
+                             'KickTotal',
+                             'KickedInfield',
+                             'KickedtoTouch',
+                             'Try',
+                             #'Turnover',
+                             ])
+BiP = pd.DataFrame(columns = ['Clock',
+                             'PhaseID',
+                             'PhaseTime',
+                             'PhaseName',
+                             #'PhaseResult',
+                             'RucksNo',
+                             'PosGainline',
+                             'NegGainline',
+                             'Linebreak',
+                             'LineBreakPrevPhase',
+                             'rdNear',
+                             'rdRuck',
+                             'rdFar',
+                             'rdMiddle',
+                             'rsSlow',
+                             'rsMedium',
+                             'rsFast',
+                             'KickTotal',
+                             'KickedInfield',
+                             'KickedtoTouch',
                              'Try',
                              #'Turnover',
                              ])
@@ -74,6 +102,7 @@ gameClock = 0
 altClock= 0
 cStart = 0
 cEnd = 0
+preEvent = ["None"]
 for element in Troot.iter("ID"):
     if element.text =='1':
         print (etree.tostring(element, pretty_print=True))
@@ -101,20 +130,30 @@ for child in Troot[:1]:
             rdRuck = 0
             rdFar = 0
             rdMiddle = 0
+            numRucks = 0
             rsSlow =0
             rsMedium= 0
             rsFast= 0
+            kicksTotal = 0
+            kickInfield = 0
+            kickTouch = 0
+            prePhase = "N/A"
+            LineBreakTest= False
             for instance in item:
                 
                 for event in instance:
                     
+                        
                     if event.text == "Gainline +":
                         print('Gainline positive')
                         posGain +=1
                     if event.text == "Gainline -":
                         negGain +=1
                     if event.text =="Gain LineBreak":
+                        #print('Event', event[-1].text)
+                        LineBreakTest = True
                         linebreak+=1
+                        preEvent.append(PreText)
                     if event.text =="RD - Near":
                         rdNear+=1
                     if event.text =="RD - RUCK":
@@ -129,8 +168,20 @@ for child in Troot[:1]:
                         rsFast+=1
                     if event.text =="RS-Slow Ball":
                         rsSlow+=1
+                    if event.text =="Kicks Total":
+                        kicksTotal+=1
+                    if event.text =="Kicked Infield":
+                        kickInfield+=1
+                    if event.text =="Kicks to Touch":
+                        kickTouch +=1
                         
-                nPhase = item[3].text
+                    PreText = event.text
+                    if LineBreakTest == True:
+                        prePhase = preEvent[-1]
+                        print('PrePhase', prePhase)
+                        LineBreakTest = False
+                numRucks = rdNear+rdFar+rdMiddle+rdRuck      
+                nPhase= item[3].text
                 highPhase = 0    
                 #if re.match(r'.:P10+', nPhase):
                  #   print (etree.tostring(item, pretty_print=True))
@@ -140,9 +191,11 @@ for child in Troot[:1]:
                 
                 
                 endT = float(item[2].text)/60
-                
+                possTime =  endT - starT
                 if endT > cEnd:
+
                     cTemp=0
+                    
                     if starT>cEnd:
                                                      
                         cTemp = endT - starT
@@ -188,7 +241,7 @@ for child in Troot[:1]:
                     except: continue    
                     tryYN = 1
                   
-                
+               
                 if instance.text == ":PHASE BALL":
                     pEnd = float(item[2].text)
                     
@@ -226,38 +279,19 @@ for child in Troot[:1]:
                     #print ('Poss Stats: ', possStats)
                     #print (etree.tostring(item, pretty_print=True))
                 
-                try:
-                    #myArray.append(count-1)
-                    #myArray.append(i)
-                    #myArray.append(x)
-                    myArray.append(Troot[0][count-1][i].text)
-                    
-                    x =0
-                    
-                    for data in instance:
-                        if data.text == "Try":
-                            print ('Try Scored')
-                        #else: print (data.attrib)
-                        try:
-                            
-                            myArray.append(Troot[0][count-1][i][x].text)
-                            
-                            x +=1
                 
-                        except:
-                            print(i,x,'nothing here')
-                            continue
-                    i+=1
-                except:
-                    continue
-            df = df.append({'Clock':gameClock,
+                if instance.text == "BALL IN PLAY":
+                    print(numRucks, posGain, kicksTotal)
+                    BiP= BiP.append({'Clock':gameClock,
                                 'PhaseID':item[0].text,
-                                'PhaseTime':cTemp,
+                                'PhaseTime':possTime,
+                                'PhaseName':nPhase,
                                 #'PhaseResult',
-                                #'RucksNo',
+                                'RucksNo':numRucks,
                                 'PosGainline':posGain,
                                 'NegGainline':negGain,
                                 'Linebreak':linebreak,
+                                'LineBreakPrevPhase':prePhase,
                                 'rdNear': rdNear,
                                 'rdRuck':rdRuck,
                                 'rdFar':rdFar,
@@ -265,10 +299,39 @@ for child in Troot[:1]:
                                 'rsSlow':rsSlow,
                                 'rsMedium':rsMedium,
                                 'rsFast':rsFast,
+                                'KickTotal':kicksTotal,
+                                'KickedInfield':kickInfield,
+                                'KickedtoTouch':kickTouch,
                                 'Try':tryYN,
                                 #'Turnover',])
                                 }, ignore_index=True)
+                    
+            df = df.append({'Clock':gameClock,
+                                'PhaseID':item[0].text,
+                                'PhaseTime':possTime,
+                                'PhaseName':nPhase,
+                                #'PhaseResult',
+                                'RucksNo':numRucks,
+                                'PosGainline':posGain,
+                                'NegGainline':negGain,
+                                'Linebreak':linebreak,
+                                'LineBreakPrevPhase':prePhase,
+                                'rdNear': rdNear,
+                                'rdRuck':rdRuck,
+                                'rdFar':rdFar,
+                                'rdMiddle':rdMiddle,
+                                'rsSlow':rsSlow,
+                                'rsMedium':rsMedium,
+                                'rsFast':rsFast,
+                                'KickTotal':kicksTotal,
+                                'KickedInfield':kickInfield,
+                                'KickedtoTouch':kickTouch,
+                                'Try':tryYN,
+                                #'Turnover',])
+                                }, ignore_index=True)
+
 df.to_csv("Game_Stats.csv")
+BP.to_csv("BallInPlayStats.csv")
 for item in tryStats:
     i=0
     
