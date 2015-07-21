@@ -9,26 +9,27 @@ style.use("ggplot")
 
 
 FEATURES = [
-            'rdSlow',
-            'rsMedium',
-            'rsFast',
+            'rdNear',
+            'rdRuck',
+            'rdFar',
+            'rdMiddle'
             
             ]
 
     
 
 def Analysis():
-    data_df = pd.DataFrame.from_csv("Possesion_Stats.csv")
+    data_df = pd.DataFrame.from_csv("Bip_Stats.csv")
     test_size =1
     X = np.array(data_df[FEATURES].values)#.tolist())
-    X = preprocessing.scale(X)
+    #X = preprocessing.scale(X)
     
-    y = np.array(data_df["Linebreak"].values.tolist())
+    y = np.array(data_df["penFK"].values)
     
     print(len(X))
     print(len(y))
     
-    clf = svm.SVC(kernel= "linear", C=1.0)
+    clf = svm.SVC(kernel= "linear", C=0.99)
 
     clf.fit(X[:-test_size], y[:-test_size])
 

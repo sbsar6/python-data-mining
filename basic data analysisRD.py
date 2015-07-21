@@ -40,7 +40,7 @@ def Analysis():
     print("Accuracy: ", (correct_count/test_size) * 100.00)
     
     #helps visualise draw the line
-    w= clf.coef_[0]
+    '''w= clf.coef_[0]
 
     a = -w[0] / w[1]
 
@@ -48,7 +48,7 @@ def Analysis():
 
     yy = a * xx - clf.intercept_[0] / w[1]
 
-    h0 = plt.plot(xx,yy, "k-", label="non weighted")
+    h0 = plt.plot(xx,yy, "k-", label="non weighted")'''
         # workd on arrays X[:,0] means 0th element of each layer (multi item element)
     plt.scatter(X[:,0], X[:,1], c = y)
     plt.ylabel("Linebreak")

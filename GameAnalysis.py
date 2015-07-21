@@ -61,39 +61,49 @@ df = pd.DataFrame(columns = ['Clock',
                              'KickTotal',
                              'KickedInfield',
                              'KickedtoTouch',
-                             'Try',
-                             #'Turnover',
+                             'turnoverTot',
+                             'turnoverKick',
+                             'turnoverContact',
+                             'fromTurnover',
+                             'penFK',
+                             'penContact',
+                             'Tries',
+                             'TryTotal',
+                             'PenTotal'
+                             
                              ])
 
                              
 
-tree = etree.parse('150215 LvD.xml')
-Troot = tree.getroot()
-#print(etree.tostring("ID", pretty_print=True))
-#for element in Troot.iter("ID"):
-#    print("%s - %s" % (element.tag, element.text))
-
-
-preIdArr = []     
-#print (Troot[0][0].get("ID"))
-myArray = []
-tryStats=[]
-possStats= []
-count = 0
-gameClock = 0
-altClock= 0
-cStart = 0
-cEnd = 0
-preEvent = ["None"]
-
-##for element in Troot.iter("ID"):
-##    if element.text =='1':
-##        print (etree.tostring(element, pretty_print=True))
-                
 
 #Getting information from tree
 if len(file_name) >0:
+    
     for file in file_name:
+        tree = etree.parse(file)
+        Troot = tree.getroot()
+        #print(etree.tostring("ID", pretty_print=True))
+        #for element in Troot.iter("ID"):
+        #    print("%s - %s" % (element.tag, element.text))
+
+
+        preIdArr = []     
+        #print (Troot[0][0].get("ID"))
+        myArray = []
+        tryStats=[]
+        possStats= []
+        count = 0
+        gameClock = 0
+        altClock= 0
+        cStart = 0
+        cEnd = 0
+        preEvent = ["None"]
+
+        ##for element in Troot.iter("ID"):
+        ##    if element.text =='1':
+        ##        print (etree.tostring(element, pretty_print=True))
+                    
+
         gameClock = 0
         cEnd=0
         cStart = 0
@@ -111,7 +121,7 @@ if len(file_name) >0:
                     i = 0
                     myArray.append('ID:' + str(count))
                     
-                    tryYN= 0
+                    
                     posGain = 0
                     negGain = 0
                     linebreak = 0
@@ -126,7 +136,16 @@ if len(file_name) >0:
                     kicksTotal = 0
                     kickInfield = 0
                     kickTouch = 0
+                    turnoverTot = 0
+                    turnoverKick = 0
+                    turnoverContact=0
+                    fromTurnover=0
+                    penFK=0
+                    penContact=0
                     prePhase = "N/A"
+                    tries=0
+                    tryYN=0
+                    penYN=0
                     LineBreakTest= False
                     for instance in item:
                         
@@ -163,6 +182,20 @@ if len(file_name) >0:
                                 kickInfield+=1
                             if event.text =="Kicks to Touch":
                                 kickTouch +=1
+                            if event.text =="Turnover Total":
+                                turnoverTot +=1
+                            if event.text =="Turnover Kick":
+                                turnoverKick +=1
+                            if event.text =="Turnover Contact":
+                                turnoverContact +=1
+                            if event.text =="From Turnover":
+                                fromTurnover +=1
+                            if event.text =="Pen/FK":
+                                penFK +=1
+                            if event.text =="Pen - Contact Area":
+                                penContact +=1
+                            if event.text =="! Try":
+                                tries +=1
                             #List the last event that led to linebreak    
                             PreText = event.text
                             if LineBreakTest == True:
@@ -217,7 +250,7 @@ if len(file_name) >0:
                     '''
                         if instance.text == "Try":
                             indent(item)
-                            ElementTree.dump(item)
+                            #ElementTree.dump(item)
                             tryTime =""
                             start = 0
                             end = 0
@@ -230,8 +263,12 @@ if len(file_name) >0:
                                 tryStats.append(tryID)
                             except: continue    
                             tryYN = 1
+                            print('TryYN', tryYN)
                           
-                       
+                        else: tryYN=0
+                        if instance.text == ".PENALTY":
+                            penYN=1
+                        else: penYN=0
                         if instance.text == ":PHASE BALL":
                             pEnd = float(item[2].text)
                             
@@ -245,18 +282,18 @@ if len(file_name) >0:
 
                            
                                
-                            phase = item[3].text
-                            
+                            '''phase = item[3].text
+                            print('phase', phase)
                             highPhase = 0    
                             
                             phaseNum = re.findall(r'\d+', phase)
                             #if phaseNum:
                             #    print ('phaseNum:' ,phaseNum)
                             phaseNum = list(map(int, phaseNum))
-                            
+                            print(phaseNum)
                             try:
                                 highNum = phaseNum[-1]
-                                print(highNum)
+                                print('highnum:',highNum)
                             except:
                                 pass
                             #if phaseNum >highPhase:
@@ -268,32 +305,41 @@ if len(file_name) >0:
                             
                             #print ('Poss Stats: ', possStats)
                             #print (etree.tostring(item, pretty_print=True))
+                            '''
                         
 
                             
-                    df = df.append({'Clock':gameClock,
-                                        'PhaseID':item[0].text,
-                                        'PhaseTime':possTime,
-                                        'PhaseName':nPhase,
-                                        #'PhaseResult',
-                                        'RucksNo':numRucks,
-                                        'PosGainline':posGain,
-                                        'NegGainline':negGain,
-                                        'Linebreak':linebreak,
-                                        'LineBreakPrevPhase':prePhase,
-                                        'rdNear': rdNear,
-                                        'rdRuck':rdRuck,
-                                        'rdFar':rdFar,
-                                        'rdMiddle':rdMiddle,
-                                        'rsSlow':rsSlow,
-                                        'rsMedium':rsMedium,
-                                        'rsFast':rsFast,
-                                        'KickTotal':kicksTotal,
-                                        'KickedInfield':kickInfield,
-                                        'KickedtoTouch':kickTouch,
-                                        'Try':tryYN,
-                                        #'Turnover',])
-                                        }, ignore_index=True)
+                        df = df.append({'Clock':gameClock,
+                                            'PhaseID':item[0].text,
+                                            'PhaseTime':possTime,
+                                            'PhaseName':nPhase,
+                                            #'PhaseResult',
+                                            'RucksNo':numRucks,
+                                            'PosGainline':posGain,
+                                            'NegGainline':negGain,
+                                            'Linebreak':linebreak,
+                                            'LineBreakPrevPhase':prePhase,
+                                            'rdNear': rdNear,
+                                            'rdRuck':rdRuck,
+                                            'rdFar':rdFar,
+                                            'rdMiddle':rdMiddle,
+                                            'rsSlow':rsSlow,
+                                            'rsMedium':rsMedium,
+                                            'rsFast':rsFast,
+                                            'KickTotal':kicksTotal,
+                                            'KickedInfield':kickInfield,
+                                            'KickedtoTouch':kickTouch,
+                                            'turnoverTot':turnoverTot,
+                                            'turnoverKick':turnoverKick,
+                                            'turnoverContact':turnoverContact,
+                                            'fromTurnover':fromTurnover,
+                                            'Tries':tries,
+                                            'penFK': penFK,
+                                            'penContact': penContact,
+                                            'TryTotal':tryYN,
+                                            'PenTotal':penYN
+                                            #'Turnover',])
+                                            }, ignore_index=True)
 
 df.to_csv("Game_Stats.csv")
 data = pd.read_csv("Game_Stats.csv")

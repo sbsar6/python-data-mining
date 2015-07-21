@@ -9,14 +9,14 @@ style.use("ggplot")
 
 
 FEATURES = ['RucksNo',
-            'PhaseTime',
-            'rdNear']
+            'PhaseTime'
+            ]
 
     
 
 def Analysis():
-    data_df = pd.DataFrame.from_csv("BiP_Stats.csv")
-    test_size =1
+    data_df = pd.DataFrame.from_csv("Game_Stats.csv")
+    test_size =100
     X = np.array(data_df[FEATURES].values)#.tolist())
     X = preprocessing.scale(X)
     
@@ -25,7 +25,7 @@ def Analysis():
     print(len(X))
     print(len(y))
     
-    clf = svm.SVC(kernel= "linear", C=1.0)
+    clf = svm.SVC(kernel= "linear", C=10.0)
 
     clf.fit(X[:-test_size], y[:-test_size])
 
@@ -38,7 +38,7 @@ def Analysis():
     print("Accuracy: ", (correct_count/test_size) * 100.00)
     
     #helps visualise draw the line
-    w= clf.coef_[0]
+    '''w= clf.coef_[0]
 
     a = -w[0] / w[1]
 
@@ -46,7 +46,7 @@ def Analysis():
 
     yy = a * xx - clf.intercept_[0] / w[1]
 
-    h0 = plt.plot(xx,yy, "k-", label="non weighted")
+    h0 = plt.plot(xx,yy, "k-", label="non weighted")'''
         # workd on arrays X[:,0] means 0th element of each layer (multi item element)
     plt.scatter(X[:,0], X[:,1], c = y)
     plt.ylabel("Linebreak")
