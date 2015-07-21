@@ -8,14 +8,16 @@ import statistics
 style.use("ggplot")
 
 
-FEATURES = ['RucksNo',
-            'PhaseTime',
-            'rdNear']
+FEATURES = [
+            'rdRuck',
+            'rdNear',
+            'rdMiddle',
+            'rdFar']
 
     
 
 def Analysis():
-    data_df = pd.DataFrame.from_csv("BiP_Stats.csv")
+    data_df = pd.DataFrame.from_csv("Possesion_Stats.csv")
     test_size =1
     X = np.array(data_df[FEATURES].values)#.tolist())
     X = preprocessing.scale(X)
@@ -50,7 +52,7 @@ def Analysis():
         # workd on arrays X[:,0] means 0th element of each layer (multi item element)
     plt.scatter(X[:,0], X[:,1], c = y)
     plt.ylabel("Linebreak")
-    plt.xlabel("RucksNo")
+    plt.xlabel("Rucks")
     plt.legend()
     plt.show()
     
