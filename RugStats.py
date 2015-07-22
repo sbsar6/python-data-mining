@@ -78,7 +78,7 @@ BiP = pd.DataFrame(columns = ['Clock',
                              ])
                              
 #tree = ttk.Treeview(root) 
-tree = etree.parse('150215 Leinster - Dragons XML Edit list.xml')
+tree = ET.parse('150516 Munster - Dragons XML Edit list.xml')
 Troot = tree.getroot()
 print(Troot[1][1].tag)
 #print(etree.tostring("ID", pretty_print=True))
