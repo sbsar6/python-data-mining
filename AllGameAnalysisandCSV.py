@@ -81,8 +81,10 @@ df = pd.DataFrame(columns = ['Clock',
 if len(file_name) >0:
     
     for file in file_name:
-        fix(file)
-        tree = etree.parse(file)
+        #fix(file)
+        Tfile = file
+        print (file)
+        tree = etree.parse(Tfile)
         Troot = tree.getroot()
         #print(etree.tostring("ID", pretty_print=True))
         #for element in Troot.iter("ID"):
@@ -150,7 +152,9 @@ if len(file_name) >0:
                     penYN=0
                     LineBreakTest= False
                     for instance in item:
-                        
+                        instanceText = item[3]
+                        print(instanceText)
+
                         for event in instance:
                             #Tally up occurances
                                 
@@ -263,7 +267,7 @@ if len(file_name) >0:
                             try:
                                 tryID = int(item[0].text)+1
                                 tryStats.append(tryID)
-                            except: continue    
+                            except: pass    
                             tryYN = 1
                             print('TryYN', tryYN)
                           

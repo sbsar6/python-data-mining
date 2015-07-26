@@ -78,7 +78,7 @@ BiP = pd.DataFrame(columns = ['Clock',
                              ])
                              
 #tree = ttk.Treeview(root) 
-tree = ET.parse('150516 Munster - Dragons XML Edit list.xml')
+tree = ET.parse('150117NvD.xml')
 Troot = tree.getroot()
 print(Troot[1][1].tag)
 #print(etree.tostring("ID", pretty_print=True))
@@ -103,9 +103,9 @@ altClock= 0
 cStart = 0
 cEnd = 0
 preEvent = ["None"]
-for element in Troot.iter("ID"):
-    if element.text =='1':
-        print (etree.tostring(element, pretty_print=True))
+##for element in Troot.iter("ID"):
+##    if element.text =='1':
+##        print (etree.tostring(element, pretty_print=True))
                 
 
 
@@ -234,7 +234,7 @@ for child in Troot[:1]:
                     print ('Try Scored')
                     #fullLoc= etree.Element(item)
                     #print (fullLoc)
-                    print (etree.tostring(item, pretty_print=True))
+                    #print (etree.tostring(item, pretty_print=True))
                     try:
                         tryID = int(item[0].text)+1
                         tryStats.append(tryID)
@@ -330,8 +330,8 @@ for child in Troot[:1]:
                                 #'Turnover',])
                                 }, ignore_index=True)
 
-df.to_csv("Game_Stats.csv")
-BP.to_csv("BallInPlayStats.csv")
+df.to_csv("NGame_Stats.csv")
+#BP.to_csv("BallInPlayStats.csv")
 for item in tryStats:
     i=0
     
