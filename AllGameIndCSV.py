@@ -73,6 +73,10 @@ df = pd.DataFrame(columns = ['Clock',
                              'Tries',
                              'TryTotal',
                              'PenTotal',
+                             'TotDraPoss',
+                             'TotOppPoss',
+                             'TotDraLineB',
+                             'TotAwayLineBreaks',
                              'DragScore',
                              'AwayScore'
                              
@@ -112,7 +116,10 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
     homeScore=0
     awayScore=0
     preEvent = ["None"]
-
+    HomePossesTime =0
+    OppPossesTime = 0
+    TotHomeLinebreaks =0
+    TotAwayLinebreaks =0
     ##for element in Troot.iter("ID"):
     ##    if element.text =='1':
     ##        print (etree.tostring(element, pretty_print=True))
@@ -121,6 +128,7 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
     gameClock = 0
     cEnd=0
     cStart = 0
+    highPhase = 0 
     for child in Troot[:1]:
 
         #print (child.tag)
@@ -133,6 +141,14 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                 instanceText = item[3].text
                 if any(match in instanceText for match in oppPhases):
                     HomeBall = False
+                    #works just not sure what to do with it
+                    '''try:
+                        OphaseNum = re.findall(r'\d+', instanceText)
+                        OphaseNum2 = list(map(int, phaseNum))
+                        if OphasNum2 > OhighPhase:
+                            OhighPhase = phasNum2
+                    except:
+                        HighestPhase = 0'''
                 if any(match in instanceText for match in homePhases):
                     HomeBall = True
                     #time.sleep(15)
@@ -145,8 +161,13 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                         awayScore +=5
                         print("Home:", homeScore, "Away:", awayScore)
                 
-                
-                
+                if instanceText =="! LINEBREAK":
+                    
+                    if HomeBall == True:
+                        TotHomeLinebreaks +=1
+                    else:
+                        TotAwayLinebreaks +=1
+                        
                 posGain = 0
                 negGain = 0
                 linebreak = 0
@@ -254,7 +275,7 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                     starT = (float(item[1].text))/60
                     
                     endT = float(item[2].text)/60
-                    possTime =  endT - starT
+                    phaseTime =  endT - starT
                     if endT > cEnd:
 
                         cTemp=0
@@ -290,49 +311,30 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                 '''
                     
                       
-                    if instance.text == ":PHASE BALL":
-                        pEnd = float(item[2].text)
+                 
+                     
+                    if instance.text == ":POSSESSION":
+                        pEnd = float(item[2].text)/60
                         
-                        pStart = float(item[1].text)
+                        pStart = float(item[1].text)/60
                         
-                        possTime =  pEnd - pStart 
+                        possT =  pEnd - pStart 
+                        HomePossesTime +=possT
+                    if instance.text == "Opposition Possession":
+                        opEnd = float(item[2].text)/60
                         
-                        possStats.append(possTime)
+                        opStart = float(item[1].text)/60
                         
-                               
+                        opPossT =  pEnd - pStart 
+                        OppPossesTime += opPossT
+                        
 
-                       
-                           
-                        '''phase = item[3].text
-                        print('phase', phase)
-                        highPhase = 0    
-                        
-                        phaseNum = re.findall(r'\d+', phase)
-                        #if phaseNum:
-                        #    print ('phaseNum:' ,phaseNum)
-                        phaseNum = list(map(int, phaseNum))
-                        print(phaseNum)
-                        try:
-                            highNum = phaseNum[-1]
-                            print('highnum:',highNum)
-                        except:
-                            pass
-                        #if phaseNum >highPhase:
-                        #    highPhase = phaseNum[0]
-                        
-                            
-                        #print (item[1].text)
-                        #possStats.append('Phases :'+ highPhase)
-                        
-                        #print ('Poss Stats: ', possStats)
-                        #print (etree.tostring(item, pretty_print=True))
-                        '''
-                    
+                                           
 
                         
                 df = df.append({'Clock':gameClock,
                                     'PhaseID':item[0].text,
-                                    'PhaseTime':possTime,
+                                    'PhaseTime':phaseTime,
                                     'PhaseName':nPhase,
                                     #'PhaseResult',
                                     'RucksNo':numRucks,
@@ -359,6 +361,10 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                                     'penContact': penContact,
                                     'TryTotal':tryYN,
                                     'PenTotal':penYN,
+                                    'TotDraPoss':HomePossesTime,
+                                    'TotOppPoss':OppPossesTime,
+                                    'TotDraLineB':TotHomeLinebreaks,
+                                    'TotAwayLineBreaks':TotAwayLinebreaks,
                                     'DragScore':homeScore,
                                     'AwayScore':awayScore
                                     #'Turnover',])
