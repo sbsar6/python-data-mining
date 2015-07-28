@@ -1,7 +1,10 @@
 import pandas as pd
 from sklearn import linear_model, svm, preprocessing
 import numpy as np
+from collections import Counter
+from sklearn.metrics import accuracy_score
 
+#class to create a classifier (model)
 class classifier:
     def __init__(self,X,y):
         self.X = X
@@ -14,8 +17,11 @@ class classifier:
         clf = self.analysis_svm()
         predictions = clf.predict(X_test)
         for i, prediction in enumerate(predictions):
-            print ('Prediction: %s. Original: %s' % (prediction, y_test[i])) 
+            print('Prediction: %s. Original: %s' % (prediction, y_test[i])) 
+        print("Accuracy: ",accuracy_score(y_test, predictions))
 
+#features to create the model, just as the real estate example that I used to illustrate supervised learning,
+#these features are our property size, age, etc              
 Features = ['RucksNo', 'PosGainline', 'NegGainline', 'Linebreak',
        'rdNear', 'rdRuck', 'rdFar', 'rdMiddle',
        'rsSlow', 'rsMedium', 'rsFast', 'KickTotal', 'KickedInfield',
@@ -23,50 +29,59 @@ Features = ['RucksNo', 'PosGainline', 'NegGainline', 'Linebreak',
        'fromTurnover', 'penContact', 'Tries', 'TryTotal',
        'PenTotal']            
 
-def read_csv(path):
-    return pd.read_csv(path)
-
 def wrangle(path):
     
-    Data = read_csv(path)
+    DataCSV = pd.read_csv(path)
     
-    List = [1.0,0.0]
+    #Labels (1 and 0)
+    Labels = [1.0,0.0]
+    
+    #Populating a dictionary accordingly with each label
     dictionary = {}
-
-    for obj in List:
-        dictionary[obj] = Data[Data["penFK"] == obj]
-    Zeroes = dictionary[List[0]]
+    for Label in Labels:
+        dictionary[Label] = DataCSV[DataCSV["penFK"] == Label]
+        
+    bucket = DataCSV["penFK"].tolist()
+    freqs = Counter(bucket)
+    print(freqs)
     
+    #Features dictionary
     FeaturesDictionary = {}
-
-    for name in List:
-        DataFea = dictionary[name]
-
-        Un = DataFea["Unnamed: 0"].tolist()
+    for Label in Labels:
+        DataFeatures = dictionary[Label]
+        
+        #Creating a list with unique values, to work as an identifier for each row 
+        UniqueValuesList = DataFeatures["Unnamed: 0"].tolist()
         features_list = []
-        for j in range(len(Un)):
+        for j in range(len(UniqueValuesList)):
             Data = []
-            for i in range(len(Features)):
-                value = DataFea[DataFea["Unnamed: 0"]==Un[j]][Features[i]].tolist()[0]
+            for each_feature in range(len(Features)):
+                value = DataFeatures[DataFeatures["Unnamed: 0"]==UniqueValuesList[j]][Features[each_feature]].tolist()[0]
                 Data.append(value)
             features_list.append(Data)
-        FeaturesDictionary[name] = features_list
+        FeaturesDictionary[Label] = features_list
     
+    #splitting original lists into test and training, the training values will create the model(classifier), 
+    #the test values will verify the quality of our model
     test = []
     training = []
 
     for key in FeaturesDictionary.keys():
         print(key)
-        test.append(FeaturesDictionary[key][-3:])
-        training.append(FeaturesDictionary[key][:-3])
-
-    ones_list = [1] * 209
-    zeroes_list = [0] * 2162
-    ones_test_list = [1] * 3
-    zeroes_test_list = [0] * 3
-
-    Labels = np.array(ones_list +zeroes_list)
+        test.append(FeaturesDictionary[key][-10:])
+        #the training values will have the last ten values for each label
+        training.append(FeaturesDictionary[key][:-10])
+    
+    #labels vector for the training data
+    ones_training_list = [1] * (freqs[1] - 10) #label 1 -> 202 times (the original data had 212 times)
+    zeroes_training_list = [0] * (freqs[0] - 10) #label 0 -> 2155 times (the original data had 2165)
+    
+    Labels = np.array(ones_training_list + zeroes_training_list)
     FeaturesList = np.array(training[1] + training[0])
+    
+    #labels vector for the test data
+    ones_test_list = [1] * 10
+    zeroes_test_list = [0] * 10
 
     model = classifier(FeaturesList,Labels)
     
@@ -74,3 +89,5 @@ def wrangle(path):
     FeaturesTestList = np.array(test[1] + test[0])
 
     model.predict(FeaturesTestList,LabelsTest)
+
+wrangle("all_games.csv")

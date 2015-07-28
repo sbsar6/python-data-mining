@@ -372,13 +372,13 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
 
     print("Final Home:", homeScore, "Away:", awayScore)
     df.to_csv(filename[:-4]+'.csv')
-data = pd.read_csv("Game_Stats.csv")
-Data_Play_Ball = data[data["PhaseName"] == "BALL IN PLAY"]
+#data = pd.read_csv("Game_Stats.csv")
+#Data_Play_Ball = data[data["PhaseName"] == "BALL IN PLAY"]
 #print(Data_Play_Ball)                     
-Data_Play_Ball.to_csv("BiP_Stats.csv")   
-Data_Possesion = data[data["PhaseName"] == ":POSSESSION"]
+#Data_Play_Ball.to_csv("BiP_Stats.csv")   
+#Data_Possesion = data[data["PhaseName"] == ":POSSESSION"]
 #print(Data_Play_Ball)                     
-Data_Possesion.to_csv("Possesion_Stats.csv")  
+#Data_Possesion.to_csv("Possesion_Stats.csv")  
     
                    
 
