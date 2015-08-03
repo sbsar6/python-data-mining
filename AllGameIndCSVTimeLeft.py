@@ -45,7 +45,7 @@ def indent(elem, level=0):
 
 #setting up a dataframe
 df = pd.DataFrame(columns = ['Clock',
-                             #'TimeLeft',
+                             'TimeLeft',
                              'PhaseID',
                              'PhaseTime',
                              'PhaseName',
@@ -337,11 +337,12 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
 
                                            
 
-                        
+                timeLeft = 0        
                 df = df.append({'Clock':gameClock,
                                     'PhaseID':item[0].text,
                                     'PhaseTime':phaseTime,
                                     'PhaseName':nPhase,
+                                    'TimeLeft':timeLeft,
                                     #'PhaseResult',
                                     'RucksNo':numRucks,
                                     'PosGainline':posGain,
@@ -378,17 +379,27 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
 
     fullTime = 0
     fullTime= cEnd
-    for item in df["Clock"]:
+    for i, row in df.iterrows():
+               
+        tempN=float(df.ix[i,"Clock"])
         
-        tempN=float(item)
-        
-        if item < halfTime:
+        if tempN < halfTime:
             timeLeft = halfTime - tempN
             
         else:
             timeLeft = fullTime - tempN
+        if timeLeft < 30:
+            if timeLeft< 20:
+                if timeLeft < 10:
+                    if timeLeft < 5:
+                        timeText = 5
+                    else: timeText = 10
+                else: timeText = 20
+            else: timeText = 30
+        else: timeText = 40
+                
         try:
-            df=df.append({'TimeLeft':timeLeft}, ignore_index=False)
+            df.ix[i,"TimeLeft"] = timeText
         except:
             print('Doesn''t work')
     print("Final Home:", homeScore, "Away:", awayScore)
