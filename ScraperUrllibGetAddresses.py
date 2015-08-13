@@ -14,7 +14,7 @@ import re
 from bs4 import BeautifulSoup
 
 Urls = ["http://en.espn.co.uk/premiership-2014-15/rugby/match/231903.html",
-       "http://en.espn.co.uk/premiership-2014-15/rugby/match/231903.html?view=scorecard"]
+       "http://en.espn.co.uk/premiership-2014-15/rugby/series/231649.html?noredir=1;template=results"]
 
 home =""
 away=""
@@ -30,21 +30,34 @@ class scraperUrllib:
                        'Connection': 'keep-alive'}
         self.soup = None
         self.scrap()
+
+        
+
+
+        
         self.result = ""
-        self.regex()
+        #self.regex()
     def scrap(self):
         req = urllib2.Request(self.url, headers=self.hdr)
         page = urllib2.urlopen(req)
         time.sleep(random.uniform(0.3,0.7))
         self.soup = BeautifulSoup(page)
+        for tag in self.soup.findAll(lambda tag:(tag.name == 'a' and tag.text == 'Match Pack'),
+                        href=True):
+            print (tag['href'])
+        
     def regex(self):
-        regex = '</span> (.+?) <span class="liveSubNavText2">'
+        regex = '<div id="scrumArticlesBoxContent">'
 
         pattern = re.compile(regex)
         self.result = re.findall(pattern,str(self.soup))[0]
     def cleanData(self):
-        group = self.soup.find_all("div",{"class":"tabbertab"})
-        Group = [i for i in group[3].find_all("tr")]
+        for tag in self.soup.findAll(lambda tag:(tag.name == 'a' and tag.text == 'Match Pack'),
+                        href=True):
+            print (tag['href'])
+        group = self.soup.find_all("td",{"class":"fixtureTblContent"})
+        print (group)
+        Group = [i for i in group[3].find_all("tbody")]
 
         List = []
         for value in Group:
@@ -85,7 +98,9 @@ class scraperUrllib:
         
     def results(self):
         score = self.result.strip().split('-')
-        return (score[0],score[1]) 
+        return (score[0],score[1])
+
+    
     
 def main(url,path):
     scrap_object = scraperUrllib(Urls[1])
@@ -101,14 +116,16 @@ def main(url,path):
             dictionary[list[1]] = [list[0],list[2]]
             
     dictionary["Result"] = [result[0],result[1]]
-    dictionary["Location"] = ["hone", "away"]
+    dictionary["Location"] = ["home", "away"]
     print(dictionary)
     print (lists[0][0], result[0], ',',lists[0][2], result[1])
     Data = pd.DataFrame(dictionary)
-    Data.to_csv("Scraped1Game.csv")
+    
     
     return Data
-   
+def save():
+    Data.to_csv("Scraped1Game.csv")
+
 path = r"C:\Users\Andrew\Desktop\python data mining\.csv"
 x= main(Urls[1],path)
 

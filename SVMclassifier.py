@@ -51,12 +51,12 @@ def wrangle(path):
         DataFeatures = dictionary[Label]
         
         #Creating a list with unique values, to work as an identifier for each row 
-        UniqueValuesList = DataFeatures["Unnamed: 0"].tolist()
+        UniqueValuesList = DataFeatures["PhaseID"].tolist()
         features_list = []
         for j in range(len(UniqueValuesList)):
             Data = []
             for each_feature in range(len(Features)):
-                value = DataFeatures[DataFeatures["Unnamed: 0"]==UniqueValuesList[j]][Features[each_feature]].tolist()[0]
+                value = DataFeatures[DataFeatures["PhaseID"]==UniqueValuesList[j]][Features[each_feature]].tolist()[0]
                 Data.append(value)
             features_list.append(Data)
         FeaturesDictionary[Label] = features_list
@@ -90,4 +90,4 @@ def wrangle(path):
 
     model.predict(FeaturesTestList,LabelsTest)
 
-wrangle("all_games.csv")
+wrangle("all_gamesOPPhase.csv")

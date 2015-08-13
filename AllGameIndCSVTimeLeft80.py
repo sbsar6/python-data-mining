@@ -13,8 +13,7 @@ from AmpersandFix import *
 from xml.etree import ElementTree
 import re
 import time
-from bs4 import BeautifulSoup
-from bs4 import BeautifulStoneSoup
+
 
 ##path = "C:\\Users\\Andrew\\Desktop\\python data mining"
 ##dataPath = path +'\\GameData'
@@ -97,17 +96,14 @@ oppPhases = [".OP1", ".OP2",".OP3",".OP4",".OP5",".OP6",".OP7",".OP8",".OP9",".O
 for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\GameData/*.xml"):
     print(filename)
     tree = etree.parse(filename)
-    #xml = (filename)   
-    #xml = "<doc><tag1>Contents 1<tag2>Contents 2<tag1>Contents 3"
-    #soup = BeautifulStoneSoup(xml)
-    #print (soup.prettify())
-
+        
+    
     
     Troot = tree.getroot()
     #print(etree.tostring("ID", pretty_print=True))
     #for element in Troot.iter("ID"):
     #    print("%s - %s" % (element.tag, element.text))
-    
+
 
     preIdArr = []     
     #print (Troot[0][0].get("ID"))
@@ -131,20 +127,17 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
     ##    if element.text =='1':
     ##        print (etree.tostring(element, pretty_print=True))
                 
-    print(len(Troot))
-    print(Troot[2].tag)
+
     gameClock = 0
     cEnd=0
     cStart = 0
     highPhase = 0 
-
     
     for child in Troot:
         if child.tag != 'ALL_INSTANCES':
             continue
-        
-        print (child.tag)
-        print (child.keys())
+        #print (child.tag)
+        #print (child.keys())
         
         for item in child:
                 #i =0
@@ -153,6 +146,10 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                 instanceText = item[3].text
                 if any(match in instanceText for match in oppPhases):
                     HomeBall = False
+                if any(match in instanceText for match in homePhases):
+                    HomeBall = True
+
+
                     #works just not sure what to do with it
                     '''try:
                         OphaseNum = re.findall(r'\d+', instanceText)
@@ -161,7 +158,8 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                             OhighPhase = phasNum2
                     except:
                         HighestPhase = 0'''
-                elif any(match in instanceText for match in homePhases):
+              
+                if any(match in instanceText for match in homePhases):
                     HomeBall = True
                     #time.sleep(15)
                 if instanceText =="Try":
@@ -228,9 +226,10 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                             else:
                                 awayScore +=3
                                 print("Home:", homeScore, "Away:", awayScore)
+
                         if event.text == "Gainline +":
-                            #print('Gainline positive')
                             posGain +=1
+
                         if event.text == "Gainline -":
                             negGain +=1
                         if event.text =="Gain LineBreak":
@@ -393,21 +392,24 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
                
         tempN=float(df.ix[i,"Clock"])
         
-        if tempN < halfTime:
-            timeLeft = halfTime - tempN
-            
-        else:
-            timeLeft = fullTime - tempN
-        if timeLeft < 30:
-            if timeLeft< 20:
-                if timeLeft < 10:
-                    if timeLeft < 5:
-                        timeText = 5
-                    else: timeText = 10
-                else: timeText = 20
-            else: timeText = 30
-        else: timeText = 40
-                
+        timeLeft = fullTime - tempN
+        if timeLeft < 70:
+            if timeLeft< 60:
+                if timeLeft < 50:
+                    if timeLeft < 40:
+                        if timeLeft < 30:
+                            if timeLeft< 20:
+                                if timeLeft < 10:
+                                    if timeLeft < 5:
+                                        timeText = 5
+                                    else: timeText = 10
+                                else: timeText = 20
+                            else: timeText = 30
+                        else: timeText = 40
+                    else: timeText = 50
+                else: timeText = 60
+            else: timeText = 70
+        else: timeText = 80              
         try:
             df.ix[i,"TimeLeft"] = timeText
         except:
@@ -416,7 +418,7 @@ for filename in glob.iglob("C:\\Users\\Andrew\\Desktop\\python data mining\\Game
     print ("HalfTime:", halfTime)
     print ("FullTime", fullTime)
     
-    df.to_csv(filename[:-4]+'.csv')
+df.to_csv('DragAllGames.csv')
 #data = pd.read_csv("Game_Stats.csv")
 #Data_Play_Ball = data[data["PhaseName"] == "BALL IN PLAY"]
 #print(Data_Play_Ball)                     

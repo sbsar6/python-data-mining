@@ -8,29 +8,27 @@ import statistics
 style.use("ggplot")
 
 
-FEATURES = [
-            'rdNear',
-            'rdRuck',
-            'rdFar',
-            'TimeLeft',
-            'rdMiddle'
-            
+FEATURES = [ 'Rucks Won', 'Mauls Won',
+       'Kicks from Hand', 'Passes', 'Runs', 'Metres Run',
+       'Possession(%)', 'Clean Breaks', 'Defenders Beaten', 'Offloads', 'Rucks Won',
+        'Turnovers Conceded', 
+       'Tackling Success Rate', 'Scrums on own feed', 'Lineouts on own feed', 'Penalties Conceeded'
             ]
 
     
 
 def Analysis():
-    data_df = pd.DataFrame.from_csv("all_gamesPhase.csv")
-    test_size =1
+    data_df = pd.DataFrame.from_csv("ScrapedCleanedTeams.csv")
+    test_size =100
     X = np.array(data_df[FEATURES].values)#.tolist())
-    #X = preprocessing.scale(X)
+    X = preprocessing.scale(X)
     
-    y = np.array(data_df["Linebreak"].values)
+    y = np.array(data_df["Team Name"].values.tolist())
     
     print(len(X))
     print(len(y))
     
-    clf = svm.SVC(kernel= "linear", C=0.99)
+    clf = svm.SVC(kernel= "linear", C=10.0)
 
     clf.fit(X[:-test_size], y[:-test_size])
 
@@ -43,7 +41,7 @@ def Analysis():
     print("Accuracy: ", (correct_count/test_size) * 100.00)
     
     #helps visualise draw the line
-    w= clf.coef_[0]
+    '''w= clf.coef_[0]
 
     a = -w[0] / w[1]
 
@@ -51,11 +49,11 @@ def Analysis():
 
     yy = a * xx - clf.intercept_[0] / w[1]
 
-    h0 = plt.plot(xx,yy, "k-", label="non weighted")
+    h0 = plt.plot(xx,yy, "k-", label="non weighted")'''
         # workd on arrays X[:,0] means 0th element of each layer (multi item element)
     plt.scatter(X[:,0], X[:,1], c = y)
     plt.ylabel("Linebreak")
-    plt.xlabel("Rucks")
+    plt.xlabel("RucksNo")
     plt.legend()
     plt.show()
     
