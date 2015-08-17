@@ -93,9 +93,13 @@ def wrangle3(path):
     
     classifier_object = classifier(X,y)
     
-    Xtrain, Xtest, ytrain, ytext = classifier_object.cross()
     
+    Xtrain, Xtest, ytrain, ytext = classifier_object.cross()
+    ''' Xtrain, Xtest, ytrain, ytext =X_train, X_test, y_train, y_test'''
     clf = classifier_object.analysis_svm(Xtrain,ytrain)
+    '''clf = svm.SVC(kernel="linear")
+        clf.fit(X_Train,Y_Train)'''
+
     rf = classifier_object.RandomForest(Xtrain,ytrain)
     
     scores_SVM = classifier_object.acurracy(clf)

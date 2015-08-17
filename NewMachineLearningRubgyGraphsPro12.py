@@ -6,11 +6,15 @@ from sklearn.metrics import accuracy_score
 from sklearn.feature_selection import RFE
 from sklearn import cross_validation
 from sklearn.ensemble import ExtraTreesClassifier, RandomForestClassifier
-
+from bokeh.palettes import brewer
+palette = brewer["Blues"][3]
 from bokeh.plotting import *
 from bokeh.charts import Bar, show, output_file
 import bokeh
 from bokeh.plotting import figure, show
+#from bokeh.palettes import Green3
+import json
+
 #bokeh.plotting.output_notebook()
 
 #class to create a classifier (model)
@@ -55,7 +59,7 @@ def wrangle3(path):
     DataCSV['Playing_Location'] = DataCSV['Playing_Location'].apply(lambda x: str(x).replace("home","1").replace("away","0"))
     DataCSV['Penalties_Conceeded'] = DataCSV['Penalties_Conceeded'].apply(lambda x: float(str(x).split("(")[0])) 
     
-    List = ["Unnamed:_0","Team_Name","Outcome","Result"]
+    List = ["Unnamed:_0","Team_Name","Outcome","Result",""]
     columns = DataCSV.columns.values
     Features = [i for i in columns if str(i) not in List]
     
@@ -127,12 +131,13 @@ def wrangle3(path):
     print("----------------------------")
     place = 1
     print("results using RFE")
-    print (sorted(zip(map(lambda x: round(x, 4), ranks), Features)))   
+    print(sorted(zip(map(lambda x: round(x, 4), ranks), Features)))   
     
     ranks = [value[1] for value in rankings.values()]
     features = [value[0] for value in rankings.values()]
-
-    bar = Bar(ranks,features,title="Super Rugby Features Outcome Rankings",stacked=True)
+    
+    bar = Bar(ranks,features,title="Pro 12 Feature Rankings",palette=brewer["Greens"][3], stacked=True)
+    
     output_file("rankings.html")
     show(bar)
 
@@ -223,32 +228,36 @@ def wrangle4(path):
         print("----------------------------")
         place = 1
         print("results using RFE")
-        print (sorted(zip(map(lambda x: round(x, 4), ranks), Features))) 
+        print(sorted(zip(map(lambda x: round(x, 4), ranks), Features))) 
         
-        DictNumberFeatures[str(count)] = (scores_SVM,scores_RF)
+        DictNumberFeatures[str(count)] = [scores_SVM,scores_RF]
         
         count += 1
 
     
     return DictNumberFeatures
 
-path = "SR3Seasons.csv"
-Ranks, Importance,rankings,Features = wrangle3(path)
+path = "Pro12FourSeasons.csv"
+Ranks, Importance,Rankings,Features = wrangle3(path)
 
-ranks = [value[1] for value in rankings.values()]
-features = [value[0] for value in rankings.values()]
+'''ranks = [value[1] for value in Rankings.values()]
+features = [value[0] for value in Rankings.values()]
 
 dic = wrangle4(path)
 
-data_SVM = [value[0] for value in dic.values()]
-data_RF = [value[1] for value in dic.values()]
+Values = dic.values()
+Keys = [key for key in dic.keys()] 
+
+
+data_SVM = [value[0] for value in Values]
+data_RF = [value[1] for value in Values]
+
 
 p = figure()
-p.line(dic.keys(),data_SVM,line_color="red",legend="SVM")
-p.line(dic.keys(),data_RF,line_color="blue",legend="RF")
-p.xaxis.axis_label = "Features"
-p.yaxis.axis_label = "Score"
-p.title = "Super Rugby Optimum Feature Numbers"
-output_file("SRscores.html")
-show(p)
+p.line(Keys,data_SVM,line_color="red",legend="SVM")
+p.line(Keys,data_RF,line_color="blue",legend="RF")
+p.xaxis.axis_label = "Number of Features"
+p.yaxis.axis_label = "Score (No. correct classifications)"
+output_file("EPSRscores.html")
+show(p)'''
 

@@ -11,6 +11,9 @@ from bokeh.plotting import *
 from bokeh.charts import Bar, show, output_file
 import bokeh
 from bokeh.plotting import figure, show
+
+import json
+
 #bokeh.plotting.output_notebook()
 
 #class to create a classifier (model)
@@ -50,12 +53,10 @@ class classifier:
             
             
 def wrangle3(path):
-    
+    #Import data and perpare for machine learning
     DataCSV = pd.read_csv(path)
-    DataCSV['Playing_Location'] = DataCSV['Playing_Location'].apply(lambda x: str(x).replace("home","1").replace("away","0"))
-    DataCSV['Penalties_Conceeded'] = DataCSV['Penalties_Conceeded'].apply(lambda x: float(str(x).split("(")[0])) 
-    
-    List = ["Unnamed:_0","Team_Name","Outcome","Result"]
+       
+    List = ["Unnamed:_0","Team_Name","Outcome","Result",""]
     columns = DataCSV.columns.values
     Features = [i for i in columns if str(i) not in List]
     
@@ -91,12 +92,59 @@ def wrangle3(path):
     
     ones_list = [1] * freqs[1] 
     zeroes_list = [0] * freqs[0]
+    from sklearn import preprocessing
+    # normalize the data attributes
+    normalized_X = preprocessing.normalize(X)
+    # standardize the data attributes
+    standardized_X = preprocessing.scale(X)
     
     y = np.array(ones_list + zeroes_list)
     
-    classifier_object = classifier(X,y)
+    #classifier_object = classifier(X,y)
+    from sklearn import metrics
+    from sklearn.ensemble import ExtraTreesClassifier
+    model = ExtraTreesClassifier()
+    model.fit(X, y)
+    # display the relative importance of each attribute
+    print(model.feature_importances_)
     
-    Xtrain, Xtest, ytrain, ytext = classifier_object.cross()
+    from sklearn.feature_selection import RFE
+    from sklearn.linear_model import LogisticRegression
+    model = LogisticRegression()
+    # create the RFE model and select 3 attributes
+    rfe = RFE(model, 3)
+    rfe = rfe.fit(X, y)
+    #    summarize the selection of the attributes
+    print(rfe.support_)
+    print(rfe.ranking_)
+
+    from sklearn import metrics
+    from sklearn.tree import DecisionTreeClassifier
+    # fit a CART model to the data
+    model = DecisionTreeClassifier()
+    model.fit(X, y)
+    print(model)
+    # make predictions
+    expected = y
+    predicted = model.predict(X)
+    # summarize the fit of the model
+    print(metrics.classification_report(expected, predicted))
+    print(metrics.confusion_matrix(expected, predicted))
+
+
+    from sklearn import metrics
+    from sklearn.svm import SVC
+    # fit a SVM model to the data
+    model = SVC()
+    model.fit(X, y)
+    print(model)
+    # make predictions
+    expected = y
+    predicted = model.predict(X)
+    # summarize the fit of the model
+    print(metrics.classification_report(expected, predicted))
+    print(metrics.confusion_matrix(expected, predicted))
+    '''Xtrain, Xtest, ytrain, ytext = classifier_object.cross()
     
     clf = classifier_object.analysis_svm(Xtrain,ytrain)
     rf = classifier_object.RandomForest(Xtrain,ytrain)
@@ -127,128 +175,20 @@ def wrangle3(path):
     print("----------------------------")
     place = 1
     print("results using RFE")
-    print (sorted(zip(map(lambda x: round(x, 4), ranks), Features)))   
+    print(sorted(zip(map(lambda x: round(x, 4), ranks), Features)))   
     
     ranks = [value[1] for value in rankings.values()]
     features = [value[0] for value in rankings.values()]
 
-    bar = Bar(ranks,features,title="Super Rugby Features Outcome Rankings",stacked=True)
+    bar = Bar(ranks,features,title="EP and SR Feature Rankings",stacked=True)
     output_file("rankings.html")
     show(bar)
 
     
     return ranks, importance, rankings, Features  
+    '''
 
-def wrangle4(path):
-    
-    DataCSV = pd.read_csv(path)
-    DataCSV['Playing_Location'] = DataCSV['Playing_Location'].apply(lambda x: str(x).replace("home","1").replace("away","0"))
-    DataCSV['Penalties_Conceeded'] = DataCSV['Penalties_Conceeded'].apply(lambda x: float(str(x).split("(")[0])) 
-    
-    List = ["Unnamed:_0","Team_Name","Outcome","Result"]
-    
-    count = 1
-    
-    DictNumberFeatures = {}
-    
-    while count <= len(features):
 
-        Features = features[:count]
-    
-        Labels = [1.0,0.0]
-
-        #Populating a dictionary accordingly with each label
-        dictionary = {}
-        for Label in Labels:
-            dictionary[Label] = DataCSV[DataCSV["Outcome"] == Label]
-
-        bucket = DataCSV["Outcome"].tolist()
-        freqs = Counter(bucket)
-        print(freqs)
-
-        #Features dictionary
-        FeaturesDictionary = {}
-        for Label in Labels:
-            DataFeatures = dictionary[Label]
-
-            #Creating a list with unique values, it works as an identifier for each row 
-            UniqueValuesList = DataFeatures.index.tolist()
-            features_list = []
-            for j in range(len(UniqueValuesList)):
-                Data = []
-                for each_feature in range(len(Features)):
-                    value = DataFeatures[DataFeatures.index==UniqueValuesList[j]][Features[each_feature]].tolist()[0]
-                    Data.append(value)
-                features_list.append(Data)
-            FeaturesDictionary[Label] = features_list
-
-        ValuesFeatures = [FeaturesDictionary[key] for key in FeaturesDictionary.keys()]
-        X = ValuesFeatures[1] + ValuesFeatures[0]
-
-        ones_list = [1] * freqs[1] 
-        zeroes_list = [0] * freqs[0]
-
-        y = np.array(ones_list + zeroes_list)
-
-        classifier_object = classifier(X,y)
-
-        Xtrain, Xtest, ytrain, ytext = classifier_object.cross()
-
-        clf = classifier_object.analysis_svm(Xtrain,ytrain)
-        rf = classifier_object.RandomForest(Xtrain,ytrain)
-
-        scores_SVM = classifier_object.acurracy(clf)
-        scores_RF = classifier_object.acurracy(rf)
-
-        ranks = classifier_object.recursive()
-
-        importance = classifier_object.Forest(Xtrain,ytrain)
-
-        sorted_index = np.argsort(importance)[::-1]
-
-        print("acurracy SVM:",scores_SVM)
-        print("acurracy Random Forest:",scores_RF)
-
-        place = 1
-
-        rankings = {}
-
-        print("results using TreesClassifier")
-        for i,j in zip(np.array(Features)[sorted_index],importance[sorted_index]):
-            rankings[place] = [i,j]
-            print("rank: {0}, {1}, {2}".format(place,i,j))
-            place += 1
-
-        print("----------------------------")
-        print("----------------------------")
-        place = 1
-        print("results using RFE")
-        print (sorted(zip(map(lambda x: round(x, 4), ranks), Features))) 
-        
-        DictNumberFeatures[str(count)] = (scores_SVM,scores_RF)
-        
-        count += 1
-
-    
-    return DictNumberFeatures
-
-path = "SR3Seasons.csv"
-Ranks, Importance,rankings,Features = wrangle3(path)
-
-ranks = [value[1] for value in rankings.values()]
-features = [value[0] for value in rankings.values()]
-
-dic = wrangle4(path)
-
-data_SVM = [value[0] for value in dic.values()]
-data_RF = [value[1] for value in dic.values()]
-
-p = figure()
-p.line(dic.keys(),data_SVM,line_color="red",legend="SVM")
-p.line(dic.keys(),data_RF,line_color="blue",legend="RF")
-p.xaxis.axis_label = "Features"
-p.yaxis.axis_label = "Score"
-p.title = "Super Rugby Optimum Feature Numbers"
-output_file("SRscores.html")
-show(p)
+path = "EP7SeasonsCleaned.csv"
+wrangle3(path)
 
