@@ -452,7 +452,7 @@ for item in urlList:
     print (lists[0][0], score[0], ',',lists[0][2], score[1])
     
     #Data.append(dictionary, ignore_index = True)
-teamDict ={} 
+'''teamDict ={} 
 i=0 
 for item in Data.Team_Name.unique(): 
     teamDict[item] = i 
@@ -464,7 +464,7 @@ for item in Data.Team_Name.unique():
     
     tempN = str(teamDict[item])
     
-    Data['Team_Name'] = Data['Team_Name'].apply(lambda x: str(x).replace(tempI,tempN))
+    Data['Team_Name'] = Data['Team_Name'].apply(lambda x: str(x).replace(tempI,tempN))'''
 Data.columns = [c.replace(' ', '_') for c in Data.columns] 
 Data['Tries_Scored'] = Data['Tries_Scored'].apply(lambda x:float(str(x).split("(")[0]))
 Data['Tot_Own_Scrums'] = Data['Own_Scrum_Won']+ Data['Own_Scrum_Lost']
