@@ -9,6 +9,9 @@ from bokeh.charts import Bar, show, output_file
 from bokeh.plotting import figure, HBox, output_file, show, VBox
 from collections import OrderedDict
 
+import bokeh
+bokeh.plotting.output_notebook()
+
 path = "EPSevenSeasonsTeamNames.csv"
 
 df = pd.read_csv(path)
@@ -16,39 +19,38 @@ columns1 = ['Tot_Own_Scrums','Penalties_Won']
 byTeamName = df.groupby('Team_Name')
 scrums_penalties = byTeamName.sum()[columns1]
 print (scrums_penalties.corr())
-#print (scrums_penalties)
+print (scrums_penalties)
 
 TeamNames = df.Team_Name.unique()
-#print(TeamNames)
+print(TeamNames)
 output_file("markers.html")
 #print(scrums_penalties["Team_Name"])
 palette = list(reversed([
-    "#f7f7f7","#d1e5f0","#228B22","#FFA500","#FFB6C1","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#1E90FF","#DC143C","#00FFFF","#808000","#9400D3","#ADFF2F","#FFFF00","#FF0000","#FF1493"
+    "#228B22","#FFA500","#FFB6C1","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#1E90FF","#DC143C","#00FFFF","#808000","#9400D3","#ADFF2F","#FFFF00","#FF0000","#FF1493"
 ]))
 
-palette2 = list(reversed([
-   "#1E90FF","#6B8E23"]))
+
 p = figure(title="Penalties Won and Own Scrums by Teams in EP", x_axis_label = "Total Own Scrums",
        y_axis_label = "Penalties Awarded")
 
+OwnScrums = scrums_penalties['Tot_Own_Scrums']
+PenaltiesWon = scrums_penalties['Penalties_Won']
+TeamsList = scrums_penalties.index.tolist()
 
-p.circle(scrums_penalties['Tot_Own_Scrums'], scrums_penalties['Penalties_Won'], size=12,
-       color=palette, line_color="black", fill_alpha=0.8)
+for i in range(len(OwnScrums)):
 
-'''p.text(scrums_penalties['Tot_Own_Scrums'], scrums_penalties['Penalties_Won']+0.3,
-    text=TeamNames,text_color="#333333",
-    text_align="center", text_font_size="10pt")'''
+    p.circle(OwnScrums[i], PenaltiesWon[i], size=12,
+           color=palette[i], line_color="black", fill_alpha=0.8, legend =TeamsList[i])
 
-#mtext(p, [2.5], [0.5], "circle / o")
+p.legend.orientation = "top_left"
+p.legend.label_text_font_size = "6pt"
 show(p)  # open a browser
 
 #Average Penalties Awarded by Referee
 columns2 = ['Penalties_Won']
 byReferee = df.groupby('Referee')
-
 penalties_sum = byReferee.sum()[columns2]
 penalties_mean= byReferee.mean()[columns2]
-print(penalties_mean)
 penalties_count = byReferee.count()[columns2]
 bar2 = Bar(penalties_mean,title="Penalties Awarded by Referee",palette=brewer["Reds"][3], stacked=True)
     
@@ -77,14 +79,14 @@ columns3 = ['Penalties_Won']
 columns4 = ['Penalties_Conceeded']
 byRefereeHome = PlayingLocationHome.groupby('Referee')
 penalties_sumHome = byRefereeHome.sum()[columns3]
-#print (penalties_sumHome)
+print (penalties_sumHome)
 penalties_meanHome= byRefereeHome.mean()[columns3]
 penalties_countHome = byRefereeHome.count()[columns3]
 
 
 byRefereeAway = PlayingLocationAway.groupby('Referee')
 penalties_sumAway = byRefereeAway.sum()[columns3]
-#print (penalties_sumAway)
+print (penalties_sumAway)
 penalties_meanAway= byRefereeAway.mean()[columns3]
 penalties_countAway = byRefereeAway.count()[columns3]
 
@@ -102,5 +104,5 @@ values = OrderedDict( PenaltiesHome=New_DF["Penalties Home"].tolist(),
                       PenaltiesAway=penalties_meanAway["Penalties_Won"].tolist(), 
                     )
 
-bar4 = Bar(values,New_DF.index.tolist(),palette=palette2,legend=True)
+bar4 = Bar(values,New_DF.index.tolist(),palette=brewer["Blues"][3],legend=True)
 show(bar4)

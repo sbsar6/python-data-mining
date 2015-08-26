@@ -25,10 +25,9 @@ def machLearn(path):
     List = ["Unnamed:_0","Team_Name","Referee","Result"]
     columns = DataCSV.columns.values
     Features = [i for i in columns if str(i) not in List]
-    Labels = []
-    for i in range(0,2):
-        Labels.append(i) 
-    print(Labels)
+    
+    Labels = [1.0,0.0]
+    
     #Populating a dictionary accordingly with each label
     dictionary = {}
     for Label in Labels:
@@ -55,19 +54,12 @@ def machLearn(path):
         FeaturesDictionary[Label] = features_list
         
     ValuesFeatures = [FeaturesDictionary[key] for key in FeaturesDictionary.keys()]
-    XList = []
-    for i in range (len(ValuesFeatures)):
-        Xsum = ValuesFeatures[i]
-        XList.append(Xsum)
-    X = XList
+    X = ValuesFeatures[1] + ValuesFeatures[0]
     X = preprocessing.scale(X,axis=0)
-
-    freqList = []
-    for i in range (0, 33):
-        ListSum = [i] * freqs[i]
-        freqList.append(ListSum)
-        
-    y = np.array(freqList)
+    ones_list = [1] * freqs[1] 
+    zeroes_list = [0] * freqs[0]
+    
+    y = np.array(ones_list + zeroes_list)
     
     
     
@@ -114,7 +106,7 @@ def machLearn(path):
     ranks = [value[1] for value in rankings.values()]
     features = [value[0] for value in rankings.values()]
     
-    bar = Bar(ranks,features,title="Dragons Feature Rankings BIP Tries",palette=brewer["Purples"][3], stacked=True)
+    bar = Bar(ranks,features,title="2 Referees Prediction",palette=brewer["Purples"][3], stacked=True)
     
     output_file("rankings.html")
     show(bar)

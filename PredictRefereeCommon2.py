@@ -21,55 +21,23 @@ def machLearn(path):
     DataCSV = pd.read_csv(path)
     #DataCSV['Playing_Location'] = DataCSV['Playing_Location'].apply(lambda x: str(x).replace("home","1").replace("away","0"))
     #DataCSV['Penalties_Conceeded'] = DataCSV['Penalties_Conceeded'].apply(lambda x: float(str(x).split("(")[0])) 
-    
+
+    Referees = DataCSV["Referee"].tolist()
+    RefereesCount = Counter(Referees)
+    RefereesSelection = [referee for referee in set(Referees) if RefereesCount[referee] > 140]
+    Frames = []
+    for Referee in RefereesSelection:
+        frame = DataCSV[DataCSV["Referee"] == Referee]
+        Frames.append(frame)
+    result = pd.concat(Frames)
     List = ["Unnamed:_0","Team_Name","Referee","Result"]
     columns = DataCSV.columns.values
     Features = [i for i in columns if str(i) not in List]
-    Labels = []
-    for i in range(0,2):
-        Labels.append(i) 
-    print(Labels)
-    #Populating a dictionary accordingly with each label
-    dictionary = {}
-    for Label in Labels:
-        dictionary[Label] = DataCSV[DataCSV["Referee"] == Label]
-    
-    bucket = DataCSV["Referee"].tolist()
-    freqs = Counter(bucket)
-    print(freqs)
-    
-    #Features dictionary
-    FeaturesDictionary = {}
-    for Label in Labels:
-        DataFeatures = dictionary[Label]
-        
-        #Creating a list with unique values, it works as an identifier for each row 
-        UniqueValuesList = DataFeatures.index.tolist()
-        features_list = []
-        for j in range(len(UniqueValuesList)):
-            Data = []
-            for each_feature in range(len(Features)):
-                value = DataFeatures[DataFeatures.index==UniqueValuesList[j]][Features[each_feature]].tolist()[0]
-                Data.append(value)
-            features_list.append(Data)
-        FeaturesDictionary[Label] = features_list
-        
-    ValuesFeatures = [FeaturesDictionary[key] for key in FeaturesDictionary.keys()]
-    XList = []
-    for i in range (len(ValuesFeatures)):
-        Xsum = ValuesFeatures[i]
-        XList.append(Xsum)
-    X = XList
+    print(RefereesSelection)
+    print(result)
+    X = np.array(result[Features].values)
     X = preprocessing.scale(X,axis=0)
-
-    freqList = []
-    for i in range (0, 33):
-        ListSum = [i] * freqs[i]
-        freqList.append(ListSum)
-        
-    y = np.array(freqList)
-    
-    
+    y = np.array(result["Referee"].values)
     
     X_train, X_test, y_train, y_test = cross_validation.train_test_split(X,y)
     
@@ -114,16 +82,15 @@ def machLearn(path):
     ranks = [value[1] for value in rankings.values()]
     features = [value[0] for value in rankings.values()]
     
-    bar = Bar(ranks,features,title="Dragons Feature Rankings BIP Tries",palette=brewer["Purples"][3], stacked=True)
+    bar = Bar(ranks,features,title="Most Important Features for Determining Referee",palette=brewer["Purples"][3], stacked=True)
     
     output_file("rankings.html")
     show(bar)
 
     
     return ranks, importance, rankings, Features  
-
+    
 
 path = "EP7SeasonsCleaned.csv"
-machLearn(path)
-
-
+#path = "EP7SeasonsCleaned.csv"
+a,b,c,d=machLearn(path)
